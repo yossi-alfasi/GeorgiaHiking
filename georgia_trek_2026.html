@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>טרק גאורגיה - יולי 2026</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #0a0a1a; color: #fff; overflow: hidden; height: 100vh; width: 100vw; }
+
+    .slide { display: none; width: 100vw; height: 100vh; position: absolute; top:0; left:0; animation: fadeIn .45s ease; }
+    .slide.active { display: flex; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:none; } }
+
+    /* ===== NAV ===== */
+    .nav {
+      position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%);
+      display: flex; align-items: center; gap: 16px;
+      background: rgba(0,0,0,.65); backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,.12); border-radius: 50px;
+      padding: 10px 26px; z-index: 9999;
+    }
+    .nav button {
+      background: rgba(78,205,196,.2); border: 1px solid rgba(78,205,196,.4);
+      color: #4ecdc4; border-radius: 50px; padding: 7px 20px;
+      font-size: 15px; cursor: pointer; transition: all .2s;
+    }
+    .nav button:hover { background: rgba(78,205,196,.4); }
+    .nav button:disabled { opacity: .3; cursor: default; }
+    #slide-counter { font-size: 14px; color: #a0d8ef; min-width: 60px; text-align: center; }
+    .dots { display: flex; gap: 7px; align-items: center; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,.3); cursor: pointer; transition: all .2s; }
+    .dot.active { background: #4ecdc4; width: 22px; border-radius: 4px; }
+
+    /* ===== SLIDE 1 – TITLE ===== */
+    .s-title {
+      flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; position: relative; overflow: hidden;
+    }
+    .s-title .bg-photo {
+      position: absolute; inset: 0;
+      background: url('https://www.caucasus-trekking.com/Images/Treks/MestiaUshguli/Fullscreen/14_Panorama.jpg') center/cover no-repeat;
+    }
+    .s-title .overlay { position: absolute; inset: 0; background: linear-gradient(135deg, rgba(5,20,40,.82) 0%, rgba(5,50,35,.75) 100%); }
+    .s-title .content { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 18px; }
+    .flag-big { font-size: 80px; }
+    .s-title h1 { font-size: 76px; font-weight: 900; letter-spacing: 2px; text-shadow: 0 4px 24px rgba(0,0,0,.6); line-height: 1.1; }
+    .s-title h1 span { color: #4ecdc4; }
+    .s-title .sub { font-size: 26px; color: #a0d8ef; font-weight: 300; }
+    .route-pill { background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25); border-radius: 50px; padding: 11px 30px; font-size: 21px; color: #4ecdc4; }
+
+    /* ===== SLIDE 2 – OVERVIEW ===== */
+    .s-overview { flex-direction: row; background: #0d1f2d; }
+    .overview-map { flex: 1; position: relative; }
+    .overview-map #map-overview { width: 100%; height: 100%; }
+    .overview-right {
+      width: 360px; flex-shrink: 0;
+      display: flex; flex-direction: column;
+      justify-content: center; gap: 24px;
+      padding: 40px 30px;
+      background: linear-gradient(180deg, #0d1f2d 0%, #0d2a1f 100%);
+      border-right: 3px solid rgba(78,205,196,.25);
+    }
+    .overview-right h2 { font-size: 34px; color: #4ecdc4; }
+    .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .stat-box { background: rgba(255,255,255,.06); border: 1px solid rgba(78,205,196,.25); border-radius: 14px; padding: 18px 14px; text-align: center; }
+    .stat-box .sv { font-size: 32px; font-weight: 700; color: #4ecdc4; }
+    .stat-box .sl { font-size: 13px; color: #a0d8ef; margin-top: 4px; }
+    .route-flow { display: flex; flex-direction: column; gap: 6px; }
+    .rf-item { display: flex; align-items: center; gap: 10px; font-size: 15px; }
+    .rf-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .rf-line { width: 2px; height: 16px; background: rgba(78,205,196,.4); margin-right: 4px; }
+
+    /* ===== DAY SLIDES ===== */
+    .s-day { flex-direction: column; }
+
+    .day-header {
+      display: flex; align-items: center; gap: 20px;
+      padding: 14px 28px; flex-shrink: 0;
+      border-bottom: 1px solid rgba(78,205,196,.2);
+    }
+    .day-badge {
+      background: linear-gradient(135deg, #4ecdc4, #1a7a6e);
+      border-radius: 50px; padding: 5px 18px;
+      font-size: 14px; font-weight: 700; flex-shrink: 0;
+    }
+    .day-header h2 { font-size: 26px; font-weight: 800; flex: 1; }
+    .day-header .quick-stats { display: flex; gap: 16px; }
+    .qs { display: flex; align-items: center; gap: 6px; font-size: 15px; background: rgba(255,255,255,.07); border-radius: 8px; padding: 5px 12px; }
+    .qs span:first-child { font-size: 18px; }
+    .qs-val { color: #4ecdc4; font-weight: 700; }
+
+    .day-body { display: flex; flex: 1; overflow: hidden; }
+
+    /* Map panel */
+    .day-map-panel { width: 45%; flex-shrink: 0; position: relative; }
+    .day-map-panel .leaflet-map { width: 100%; height: 100%; }
+
+    /* Right panel: photos + info */
+    .day-right-panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; border-right: 3px solid rgba(78,205,196,.2); }
+
+    /* Photo carousel */
+    .photo-carousel { flex: 0 0 58%; position: relative; overflow: hidden; }
+    .photo-slides { display: flex; height: 100%; transition: transform .4s ease; }
+    .photo-slide { min-width: 100%; height: 100%; position: relative; flex-shrink: 0; }
+    .photo-slide img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .photo-slide .photo-caption {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: linear-gradient(transparent, rgba(0,0,0,.75));
+      padding: 20px 16px 10px; font-size: 13px; color: #cde; text-align: right;
+    }
+    .photo-nav { position: absolute; top: 50%; transform: translateY(-50%); display: flex; width: 100%; justify-content: space-between; padding: 0 10px; pointer-events: none; }
+    .photo-btn {
+      pointer-events: all; background: rgba(0,0,0,.5); border: 1px solid rgba(255,255,255,.2);
+      color: #fff; border-radius: 50%; width: 36px; height: 36px;
+      font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: all .2s;
+    }
+    .photo-btn:hover { background: rgba(78,205,196,.5); }
+    .photo-dots { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); display: flex; gap: 5px; }
+    .photo-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.5); cursor: pointer; }
+    .photo-dot.active { background: #4ecdc4; width: 16px; border-radius: 3px; }
+
+    /* Info cards */
+    .day-info { flex: 1; overflow-y: auto; padding: 14px 18px; display: flex; flex-direction: column; gap: 10px; background: rgba(0,0,0,.2); }
+    .info-card { background: rgba(255,255,255,.06); border-right: 3px solid #4ecdc4; border-radius: 10px; padding: 12px 14px; }
+    .info-card h4 { font-size: 12px; color: #4ecdc4; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+    .info-card p { font-size: 14px; color: #cde; line-height: 1.5; }
+
+    /* day background colors */
+    .day1 { background: linear-gradient(180deg, #0d2137 0%, #1a3550 100%); }
+    .day2 { background: linear-gradient(180deg, #0d2a20 0%, #1a4535 100%); }
+    .day3 { background: linear-gradient(180deg, #2a1a0d 0%, #4a3020 100%); }
+    .day4 { background: linear-gradient(180deg, #1a0d2a 0%, #35204a 100%); }
+    .day5 { background: linear-gradient(180deg, #0d2a2a 0%, #1a4545 100%); }
+
+    /* ===== SLIDE – TRANSPORT ===== */
+    .s-info {
+      flex-direction: column; align-items: center; justify-content: center;
+      padding: 50px 60px; gap: 32px;
+      background: linear-gradient(135deg, #0d2137 0%, #0d3a2a 100%);
+    }
+    .s-info h2 { font-size: 44px; color: #4ecdc4; }
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; width: 100%; max-width: 1000px; }
+    .info-big-card { background: rgba(255,255,255,.07); border: 1px solid rgba(78,205,196,.3); border-radius: 18px; padding: 28px 24px; }
+    .info-big-card h3 { font-size: 20px; color: #4ecdc4; margin-bottom: 12px; }
+    .info-big-card p, .info-big-card li { font-size: 16px; color: #d0e8f0; line-height: 1.7; }
+    .price-tag { display: inline-block; background: linear-gradient(135deg,#4ecdc4,#1a7a6e); border-radius: 8px; padding: 3px 14px; font-size: 18px; font-weight: 700; margin-top: 8px; }
+
+    /* ===== SLIDE – ACCOM ===== */
+    .s-accom {
+      flex-direction: column; align-items: center; justify-content: center;
+      padding: 40px 60px; gap: 28px;
+      background: linear-gradient(135deg, #1a1a0d 0%, #2a3a1a 100%);
+    }
+    .s-accom h2 { font-size: 44px; color: #4ecdc4; }
+    .accom-list { display: flex; flex-direction: column; gap: 14px; width: 100%; max-width: 900px; }
+    .accom-item { display: flex; align-items: center; gap: 18px; background: rgba(255,255,255,.07); border: 1px solid rgba(78,205,196,.2); border-radius: 14px; padding: 16px 22px; }
+    .accom-icon { font-size: 32px; }
+    .accom-location { font-size: 20px; font-weight: 700; flex: 1; }
+    .accom-type { font-size: 14px; color: #a0d8ef; }
+    .accom-platform { background: rgba(78,205,196,.2); border: 1px solid rgba(78,205,196,.4); border-radius: 7px; padding: 3px 10px; font-size: 13px; color: #4ecdc4; }
+
+    /* ===== SLIDE – END ===== */
+    .s-end {
+      flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; gap: 24px; position: relative; overflow: hidden;
+    }
+    .s-end .bg-photo { position: absolute; inset: 0; background: url('https://www.caucasus-trekking.com/Images/Treks/MestiaUshguli/Fullscreen/18_Ushguli2.jpg') center/cover no-repeat; }
+    .s-end .overlay { position: absolute; inset: 0; background: rgba(0,0,0,.65); }
+    .s-end .content { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 22px; }
+    .s-end h2 { font-size: 56px; font-weight: 900; }
+    .s-end p { font-size: 22px; color: #a0d8ef; max-width: 600px; }
+    .checklist { display: flex; flex-direction: column; gap: 10px; text-align: right; }
+    .cl-item { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,.1); backdrop-filter: blur(8px); border-radius: 10px; padding: 10px 18px; font-size: 17px; }
+
+    /* ===== LEAFLET OVERRIDES ===== */
+    .leaflet-container { font-family: 'Segoe UI', Arial, sans-serif; }
+    .custom-marker {
+      background: #4ecdc4; color: #0a0a1a; border-radius: 6px;
+      padding: 3px 8px; font-size: 12px; font-weight: 700;
+      white-space: nowrap; border: 2px solid #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,.5);
+    }
+    .marker-start { background: #4ecdc4; }
+    .marker-end { background: #ff6b6b; color: #fff; }
+    .marker-camp { background: #ffd700; color: #333; }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 1 – TITLE
+══════════════════════════════════════════ -->
+<div class="slide s-title" id="slide-1">
+  <div class="bg-photo"></div>
+  <div class="overlay"></div>
+  <div class="content">
+    <div class="flag-big">🇬🇪</div>
+    <h1>טרק <span>גאורגיה</span></h1>
+    <div class="sub">הרי קווקז • שבאנטי • יולי 2026</div>
+    <div class="route-pill">🏔️ מסטיה → אושגולי | 5 ימים | 57.8 ק"מ</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 2 – OVERVIEW MAP
+══════════════════════════════════════════ -->
+<div class="slide s-overview" id="slide-2">
+  <div class="overview-map">
+    <svg viewBox="0 0 800 450" preserveAspectRatio="xMidYMid slice"
+         xmlns="http://www.w3.org/2000/svg"
+         style="width:100%;height:100%;display:block;direction:ltr;">
+      <defs>
+        <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"   stop-color="#091828"/>
+          <stop offset="55%"  stop-color="#0d2235"/>
+          <stop offset="100%" stop-color="#0a2015"/>
+        </linearGradient>
+        <linearGradient id="routeGrad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%"   stop-color="#4ecdc4"/>
+          <stop offset="55%"  stop-color="#45b7d1"/>
+          <stop offset="100%" stop-color="#ff6b6b"/>
+        </linearGradient>
+        <filter id="glow" x="-25%" y="-25%" width="150%" height="150%">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="3.5" result="b"/>
+          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="mglow">
+          <feGaussianBlur stdDeviation="2.5" result="b"/>
+          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+
+      <!-- Background -->
+      <rect width="800" height="450" fill="url(#bg)"/>
+
+      <!-- Topographic contour rings (subtle) -->
+      <g fill="none" stroke="rgba(78,205,196,0.055)" stroke-width="1">
+        <ellipse cx="400" cy="240" rx="350" ry="140"/>
+        <ellipse cx="400" cy="240" rx="300" ry="108"/>
+        <ellipse cx="400" cy="240" rx="250" ry="78"/>
+        <ellipse cx="400" cy="240" rx="200" ry="52"/>
+        <ellipse cx="400" cy="240" rx="150" ry="30"/>
+      </g>
+
+      <!-- Far mountain silhouette -->
+      <polygon fill="rgba(12,35,55,0.75)"
+        points="0,450 0,205 40,190 80,175 120,188 160,162 200,148 235,162 265,135 295,118 325,130 355,105 390,90 425,108 460,82 492,95 525,110 558,122 595,138 635,152 680,168 720,182 760,196 800,205 800,450"/>
+
+      <!-- Near mountain silhouette (shows terrain) -->
+      <polygon fill="rgba(8,28,18,0.82)"
+        points="0,450 0,285 25,272 58,260 90,248 125,258 158,238 190,222 222,212 252,226 278,208 308,188 328,172 358,188 382,168 406,152 430,140 458,126 484,115 514,132 545,148 575,160 608,173 642,188 678,205 715,220 755,238 800,252 800,450"/>
+
+      <!-- Snow/glacier highlight on high section -->
+      <polygon fill="rgba(200,230,255,0.12)"
+        points="328,172 308,188 358,188 382,168 406,152 430,140 458,126 484,115 460,82 425,108 390,90"/>
+
+      <!-- Grid (lat/lng suggestion) -->
+      <g stroke="rgba(255,255,255,0.035)" stroke-width="1">
+        <line x1="200" y1="0" x2="200" y2="450"/>
+        <line x1="400" y1="0" x2="400" y2="450"/>
+        <line x1="600" y1="0" x2="600" y2="450"/>
+        <line x1="0"   y1="150" x2="800" y2="150"/>
+        <line x1="0"   y1="300" x2="800" y2="300"/>
+      </g>
+
+      <!-- Route shadow -->
+      <polyline
+        points="89,379 111,351 166,321 233,286 248,269 269,234 299,184 319,143 355,125 409,103 474,88 523,96 575,118 639,162 691,227 712,284 719,354"
+        fill="none" stroke="rgba(0,0,0,0.55)" stroke-width="9"
+        stroke-linecap="round" stroke-linejoin="round"/>
+
+      <!-- Route main line -->
+      <polyline
+        points="88,377 110,349 165,319 232,284 247,267 268,232 298,182 318,141 354,123 408,101 473,86 522,94 574,116 638,160 690,225 711,282 718,352"
+        fill="none" stroke="url(#routeGrad)" stroke-width="5"
+        stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)"/>
+
+      <!-- Day segment labels -->
+      <text x="168" y="310" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-family="Arial" font-size="10">יום 1</text>
+      <text x="274" y="192" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-family="Arial" font-size="10">יום 2</text>
+      <text x="390" y="80"  text-anchor="middle" fill="rgba(255,255,255,0.5)" font-family="Arial" font-size="10">יום 3</text>
+      <text x="598" y="178" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-family="Arial" font-size="10">יום 4</text>
+
+      <!-- ● Mestia (start) -->
+      <circle cx="88" cy="377" r="10" fill="#4ecdc4" stroke="#fff" stroke-width="2.5" filter="url(#mglow)"/>
+      <text x="104" y="372" fill="#4ecdc4"  font-family="Arial" font-size="13" font-weight="bold">מסטיה</text>
+      <text x="104" y="387" fill="#a0d8ef" font-family="Arial" font-size="10">1,550 מ׳ | התחלה</text>
+
+      <!-- ● Zhabeshi (camp 1) -->
+      <circle cx="247" cy="267" r="8" fill="#ffd700" stroke="#fff" stroke-width="2" filter="url(#mglow)"/>
+      <text x="261" y="263" fill="#ffd700" font-family="Arial" font-size="12" font-weight="bold">ז׳אבשי</text>
+      <text x="261" y="276" fill="#a0d8ef" font-family="Arial" font-size="10">⛺ לינה יום 1</text>
+
+      <!-- ● Adishi (camp 2) -->
+      <circle cx="318" cy="141" r="8" fill="#ffd700" stroke="#fff" stroke-width="2" filter="url(#mglow)"/>
+      <text x="331" y="137" fill="#ffd700" font-family="Arial" font-size="12" font-weight="bold">אדישי</text>
+      <text x="331" y="150" fill="#a0d8ef" font-family="Arial" font-size="10">⛺ לינה יום 2</text>
+
+      <!-- ● Iprali (camp 3 / high point) -->
+      <circle cx="473" cy="86" r="8" fill="#ffd700" stroke="#fff" stroke-width="2" filter="url(#mglow)"/>
+      <polygon points="473,54 468,71 478,71" fill="rgba(255,255,255,0.7)"/>
+      <text x="487" y="82" fill="#ffd700" font-family="Arial" font-size="12" font-weight="bold">איפראלי</text>
+      <text x="487" y="95" fill="#a0d8ef" font-family="Arial" font-size="10">⛺ לינה יום 3</text>
+
+      <!-- ● Ushguli (end) — label above, left-anchored -->
+      <circle cx="718" cy="352" r="10" fill="#ff6b6b" stroke="#fff" stroke-width="2.5" filter="url(#mglow)"/>
+      <text x="718" y="330" text-anchor="middle" fill="#ff6b6b"  font-family="Arial" font-size="13" font-weight="bold">אושגולי</text>
+      <text x="718" y="344" text-anchor="middle" fill="#a0d8ef" font-family="Arial" font-size="10">2,200 מ׳ | יונסק״ו</text>
+
+      <!-- Compass rose -->
+      <g transform="translate(755,55)">
+        <circle r="22" fill="rgba(0,0,0,0.45)" stroke="rgba(78,205,196,0.4)" stroke-width="1.5"/>
+        <polygon points="0,-16 4,0 0,-4 -4,0" fill="#fff"/>
+        <polygon points="0,16 4,0 0,4 -4,0"  fill="rgba(255,255,255,0.3)"/>
+        <line x1="-14" y1="0" x2="14" y2="0" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+        <text x="0" y="-20" text-anchor="middle" fill="#fff" font-family="Arial" font-size="9" font-weight="bold">N</text>
+      </g>
+
+      <!-- Scale bar -->
+      <g transform="translate(28,428)">
+        <line x1="0"   y1="0" x2="116" y2="0" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/>
+        <line x1="0"   y1="-4" x2="0"   y2="4" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/>
+        <line x1="58"  y1="-3" x2="58"  y2="3" stroke="rgba(255,255,255,0.35)" stroke-width="1"/>
+        <line x1="116" y1="-4" x2="116" y2="4" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/>
+        <text x="58" y="-7" text-anchor="middle" fill="rgba(180,210,225,0.75)" font-family="Arial" font-size="9">10 ק״מ</text>
+      </g>
+
+      <!-- Legend box -->
+      <g transform="translate(600,392)">
+        <rect width="176" height="50" rx="6" fill="rgba(0,0,0,0.52)" stroke="rgba(78,205,196,0.2)" stroke-width="1"/>
+        <circle cx="14" cy="13" r="5" fill="#4ecdc4"/>
+        <text x="24" y="17" fill="#cde" font-family="Arial" font-size="10">נקודת פתיחה</text>
+        <circle cx="14" cy="33" r="5" fill="#ffd700"/>
+        <text x="24" y="37" fill="#cde" font-family="Arial" font-size="10">לינה</text>
+        <circle cx="96" cy="13" r="5" fill="#ff6b6b"/>
+        <text x="106" y="17" fill="#cde" font-family="Arial" font-size="10">יעד</text>
+        <line x1="90" y1="33" x2="112" y2="33" stroke="#4ecdc4" stroke-width="2.5"/>
+        <text x="116" y="37" fill="#cde" font-family="Arial" font-size="10">מסלול</text>
+      </g>
+
+      <!-- Title watermark -->
+      <text x="400" y="20" text-anchor="middle" fill="rgba(140,185,210,0.4)"
+            font-family="Arial" font-size="10" letter-spacing="0.5">שבאנטי, גאורגיה — Mestia–Ushguli Trek</text>
+    </svg>
+  </div>
+  <div class="overview-right">
+    <h2>📋 סקירת המסלול</h2>
+    <div class="stat-grid">
+      <div class="stat-box"><div class="sv">5</div><div class="sl">ימי טיול</div></div>
+      <div class="stat-box"><div class="sv">57.8</div><div class="sl">ק"מ סה"כ</div></div>
+      <div class="stat-box"><div class="sv">3,209</div><div class="sl">מ' עלייה</div></div>
+      <div class="stat-box"><div class="sv">11+</div><div class="sl">משתתפים</div></div>
+    </div>
+    <div class="route-flow">
+      <div class="rf-item"><div class="rf-dot" style="background:#4ecdc4"></div><strong>מסטיה</strong> — נקודת פתיחה</div>
+      <div class="rf-line" style="margin-right:4px"></div>
+      <div class="rf-item"><div class="rf-dot" style="background:#ffd700"></div>ז'אבשי — לינה יום 1</div>
+      <div class="rf-line" style="margin-right:4px"></div>
+      <div class="rf-item"><div class="rf-dot" style="background:#ffd700"></div>אדישי — לינה יום 2</div>
+      <div class="rf-line" style="margin-right:4px"></div>
+      <div class="rf-item"><div class="rf-dot" style="background:#ffd700"></div>איפראלי — לינה יום 3</div>
+      <div class="rf-line" style="margin-right:4px"></div>
+      <div class="rf-item"><div class="rf-dot" style="background:#ff6b6b"></div><strong>אושגולי</strong> — יעד מסיום</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 3 – DAY 1: Mestia → Zhabeshi
+══════════════════════════════════════════ -->
+<div class="slide s-day day1" id="slide-3">
+  <div class="day-header">
+    <span class="day-badge">📅 יום 1</span>
+    <h2>מסטיה &rarr; ז'אבשי</h2>
+    <div class="quick-stats">
+      <div class="qs"><span>📏</span><span class="qs-val">16.1 ק"מ</span></div>
+      <div class="qs"><span>⬆️</span><span class="qs-val">763 מ'</span></div>
+      <div class="qs"><span>⬇️</span><span class="qs-val">523 מ'</span></div>
+      <div class="qs"><span>🏠</span><span class="qs-val">The Hostel, ז'אבשי</span></div>
+    </div>
+  </div>
+  <div class="day-body">
+    <div class="day-map-panel">
+      <div id="map-day1" class="leaflet-map"></div>
+    </div>
+    <div class="day-right-panel">
+      <div class="photo-carousel" id="car1">
+        <div class="photo-slides" id="ps1">
+          <div class="photo-slide">
+            <img src="https://www.caucasus-trekking.com/Images/Treks/MestiaUshguli/Fullscreen/00_Mestia.jpg" alt="מסטיה" loading="lazy">
+            <div class="photo-caption">🏙️ מסטיה — עיר השבאנטי עם המגדלים הסואניים האיקוניים</div>
+          </div>
+          <div class="photo-slide">
+            <img src="https://www.caucasus-trekking.com/Images/Treks/MestiaUshguli/Fullscreen/01_ToZhabeshi.jpg" alt="שביל לזאבשי" loading="lazy">
+            <div class="photo-caption">🥾 שביל הטרק בדרך לז'אבשי — נופים פסטורליים של שבאנטי</div>
+          </div>
+          <div class="photo-slide">
+            <img src="https://www.caucasus-trekking.com/Images/Treks/MestiaUshguli/Fullscreen/02_ToZhabeshi.JPG" alt="מרעות אלפיניות" loading="lazy">
+            <div class="photo-caption">🌿 מרעות אלפיניות ירוקות בין מסטיה לז'אבשי</div>
+          </div>
+        </div>
+        <div class="photo-nav">
+          <button class="photo-btn" onclick="prevPhoto('ps1','pd1')">&#8250;</button>
+          <button class="photo-btn" onclick="nextPhoto('ps1','pd1')">&#8249;</button>
+        </div>
+        <div class="photo-dots" id="pd1">
+          <div class="photo-dot active"></div><div class="photo-dot"></div><div class="photo-dot"></div>
+        </div>
+      </div>
+      <div class="day-info">
+        <div class="info-card"><h4>🌄 תיאור</h4><p>יום פתיחה נוח. יציאה ממסטיה דרך כפרים סואניים ומרעות ירוקות. נוף פנורמי לפסגות שח'ארה ולמגדלי שבאנטי.</p></div>
+        <div class="info-card"><h4>💡 טיפ</h4><p>כדאי לבקר במגדלים ובמוזיאון של מסטיה לפני היציאה. ניתן לרכוש מצרכים ומזון לדרך בשוק המקומי.</p></div>
+        <div class="info-card"><h4>🏠 לינה</h4><p>גסטהאוס מקומי בז'אבשי — ארוחות ביתיות גאורגיות אותנטיות כלולות.</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 4 – DAY 2: Zhabeshi → Adishi
+══════════════════════════════════════════ -->
+<div class="slide s-day day2" id="slide-4">
+  <div class="day-header">
+    <span class="day-badge">📅 יום 2</span>
+    <h2>ז'אבשי &rarr; אדישי</h2>
+    <div class="quick-stats">
+      <div class="qs"><span>📏</span><span class="qs-val">10.6 ק"מ</span></div>
+      <div class="qs"><span>⬆️</span><span class="qs-val">909 מ'</span></div>
+      <div class="qs"><span>⬇️</span><span class="qs-val">527 מ'</span></div>
+      <div class="qs"><span>🏠</span><span class="qs-val">מגורים היסטוריים</span></div>
+    </div>
+  </div>
+  <div class="day-body">
+    <div class="day-map-panel">
+      <div id="map-day2" class="leaflet-map"></div>
+    </div>
+    <div class="day-right-panel">
+      <div class="photo-carousel" id="car2">
+        <div class="photo-slides" id="ps2">
+          <div class="photo-slide">
+            <img src="https://www.caucasus-trekking.com/Images/Treks/MestiaUshguli/Fullscreen/08_ToAdishi.jpg" alt="שביל לאדישי" loading="lazy">
+            <div class="photo-caption">🏔️ השביל הגבוה לאדישי עם נוף להרי קווקז</div>
+          </div>
+          <div class="photo-slide">
+            <img src="https://www.caucasus-trekking.com/Images/Treks/MestiaUshguli/Fullscreen/04_ShkharaBack.JPG" alt="שח'ארה" loading="lazy">
+            <div class="photo-caption">🗻 נוף להר שח'ארה (5,201 מ') — ההר הגבוה ביותר בגאורגיה</div>
+          </div>
+          <div class="photo-slide">
+            <img src="https://www.caucasus-trekking.com/Images/Treks/MestiaUshguli/Fullscreen/08a_UpperTrail.jpg" alt="שביל עליון" loading="lazy">
+            <div class="photo-caption">⛰️ השביל העליון עם פנורמה לכל עמק שבאנטי</div>
+          </div>
+        </div>
+        <div class="photo-nav">
+          <button class="photo-btn" onclick="prevPhoto('ps2','pd2')">&#8250;</button>
+          <button class="photo-btn" onclick="nextPhoto('ps2','pd2')">&#8249;</button>
+        </div>
+        <div class="photo-dots" id="pd2">
+          <div class="photo-dot active"></div><div class="photo-dot"></div><div class="photo-dot"></div>
+        </div>
+      </div>
+      <div class="day-info">
+        <div class="info-card"><h4>🌄 תיאור</h4><p>הקטע עם העלייה הגדולה ביותר. המסלול עולה לפסגה גבוהה עם נוף עוצר נשימה לגלציאר אדישי ולהר שח'ארה.</p></div>
+        <div class="info-card"><h4>⚠️ שים לב</h4><p>יום קצר במרחק אך תלול מאוד. צאו מוקדם, הצטיידו במים וחטיפים. הכינו שכבות לקור בפסגה.</p></div>
+        <div class="info-card"><h4>🏠 לינה</h4><p>בית היסטורי מסורתי סואני באדישי — חוויה ייחודית בכפר המבודד מהעולם.</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 5 – DAY 3: Adishi → Iprali
+══════════════════════════════════════════ -->
+<div class="slide s-day day3" id="slide-5">
+  <div class="day-header">
+    <span class="day-badge">📅 יום 3</span>
+    <h2>אדישי &rarr; איפראלי</h2>
+    <div class="quick-stats">
+      <div class="qs"><span>📏</span><span class="qs-val">18.7 ק"מ</span></div>
+      <div class="qs"><span>⬆️</span><span class="qs-val">860 מ'</span></div>
+      <div class="qs"><span>⬇️</span><span class="qs-val">1,069 מ'</span></div>
+      <div class="qs"><span>⏱️</span><span class="qs-val">8-10 שעות</span></div>
+    </div>
+  </div>
+  <div class="day-body">
+    <div class="day-map-panel">
+      <div id="map-day3" class="leaflet-map"></div>
+    </div>
+    <div class="day-right-panel">
+      <div class="photo-carousel" id="car3">
+        <div class="photo-slides" id="ps3">
+          <div class="photo-slide">
+            <img src="https://www.caucasus-trekking.com/Images/Treks/MestiaUshguli/Fullscreen/13_AdishiGlacier.jpg" alt="גלציאר אדישי" loading="lazy">
+            <div class="photo-caption">🧊 גלציאר אדישי — אחד הנופים הדרמטיים ביותר במסלול</div>
+          </div>
+          <div class="photo-slide">
+            <img src="https://www.caucasus-trekking.com/Images/Treks/MestiaUshguli/Fullscreen/11a_Adischala.jpg" alt="מעבר נהר אדישצ'לה" loading="lazy">
+            <div class="photo-caption">🌊 מעבר נהר אדישצ'לה — הרגע הכי מלהיב ביום!</div>
+          </div>
+          <div class="photo-slide">
+            <img src="https://www.caucasus-trekking.com/Images/Treks/MestiaUshguli/Fullscreen/12_Crossing.jpg" alt="מעבר הנחל" loading="lazy">
+            <div class="photo-caption">🏃 מעבר הנחל — המים קרים ומהירים ביולי, תכננו בהתאם</div>
+          </div>
+          <div class="photo-slide">
+            <img src="https://www.caucasus-trekking.com/Images/Treks/MestiaUshguli/Fullscreen/15_AdishiValley.jpg" alt="עמק אדישי" loading="lazy">
+            <div class="photo-caption">🏞️ פנורמת עמק אדישי — נוף שלא נשכח לעולם</div>
+          </div>
+        </div>
+        <div class="photo-nav">
+          <button class="photo-btn" onclick="prevPhoto('ps3','pd3')">&#8250;</button>
+          <button class="photo-btn" onclick="nextPhoto('ps3','pd3')">&#8249;</button>
+        </div>
+        <div class="photo-dots" id="pd3">
+          <div class="photo-dot active"></div><div class="photo-dot"></div><div class="photo-dot"></div><div class="photo-dot"></div>
+        </div>
+      </div>
+      <div class="day-info">
+        <div class="info-card"><h4>🌄 תיאור</h4><p>היום הארוך והדרמטי. מעבר ליד גלציאר אדישי ולאחר מכן מעבר הנהר המפורסם — חוויה בלתי נשכחת.</p></div>
+        <div class="info-card"><h4>⚠️ אזהרה חשובה</h4><p>מעבר הנהר תלוי בגובה המים. ביולי המים גבוהים! מומלץ לשכור פרד מקומי (5-10 לארי) לחציה.</p></div>
+        <div class="info-card"><h4>💡 טיפ</h4><p>צאו בשעה 06:00 לכל המאוחר. קחו אוכל לכל היום — אין קיוסקים בדרך.</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 6 – DAY 4: Iprali → Ushguli
+══════════════════════════════════════════ -->
+<div class="slide s-day day4" id="slide-6">
+  <div class="day-header">
+    <span class="day-badge">📅 יום 4</span>
+    <h2>איפראלי &rarr; אושגולי 🏁</h2>
+    <div class="quick-stats">
+      <div class="qs"><span>📏</span><span class="qs-val">12.4 ק"מ</span></div>
+      <div class="qs"><span>⬆️</span><span class="qs-val">677 מ'</span></div>
+      <div class="qs"><span>⬇️</span><span class="qs-val">436 מ'</span></div>
+      <div class="qs"><span>🏆</span><span class="qs-val">יונסק"ו!</span></div>
+    </div>
+  </div>
+  <div class="day-body">
+    <div class="day-map-panel">
+      <div id="map-day4" class="leaflet-map"></div>
+    </div>
+    <div class="day-right-panel">
+      <div class="photo-carousel" id="car4">
+        <div class="photo-slides" id="ps4">
+          <div class="photo-slide">
+            <img src="https://www.caucasus-trekking.com/Images/Treks/MestiaUshguli/Fullscreen/17_Ushguli1.jpg" alt="אושגולי" loading="lazy">
+            <div class="photo-caption">🏰 אושגולי — הכפר המאוכלס הגבוה ביותר באירופה (2,200 מ')</div>
+          </div>
+          <div class="photo-slide">
+            <img src="https://www.caucasus-trekking.com/Images/Treks/MestiaUshguli/Fullscreen/18_Ushguli2.jpg" alt="מגדלי אושגולי" loading="lazy">
+            <div class="photo-caption">🗼 מגדלי שמירה מימי הביניים — אתר מורשת עולמית של יונסק"ו</div>
+          </div>
+          <div class="photo-slide">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Ushguli_Svaneti_Georgia.JPG/1280px-Ushguli_Svaneti_Georgia.JPG" alt="אושגולי פנורמה" loading="lazy">
+            <div class="photo-caption">📸 פנורמת אושגולי עם הרי שח'ארה ברקע (CC BY-SA 3.0 Wikimedia)</div>
+          </div>
+        </div>
+        <div class="photo-nav">
+          <button class="photo-btn" onclick="prevPhoto('ps4','pd4')">&#8250;</button>
+          <button class="photo-btn" onclick="nextPhoto('ps4','pd4')">&#8249;</button>
+        </div>
+        <div class="photo-dots" id="pd4">
+          <div class="photo-dot active"></div><div class="photo-dot"></div><div class="photo-dot"></div>
+        </div>
+      </div>
+      <div class="day-info">
+        <div class="info-card"><h4>🌄 תיאור</h4><p>היום האחרון! הגעה לאושגולי — קומפלקס של 4 כפרים עם מגדלים מימי הביניים. נוף להר שח'ארה הלא ייאמן.</p></div>
+        <div class="info-card"><h4>🎉 חגיגה!</h4><p>הגעתם! מסיבת סיום ראויה. לינה באושגולי. כדאי לטייל בין הכפרים ולבקר במוזיאון ג'ורג'ובה.</p></div>
+        <div class="info-card"><h4>🏠 לינה</h4><p>Booking.com / Airbnb — הזמינו מראש! אושגולי פופולרית בקיץ ומקומות אוזלים מהר.</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 7 – DAY 5: Return
+══════════════════════════════════════════ -->
+<div class="slide s-day day5" id="slide-7">
+  <div class="day-header">
+    <span class="day-badge">📅 יום 5</span>
+    <h2>אושגולי &rarr; בטומי</h2>
+    <div class="quick-stats">
+      <div class="qs"><span>🚗</span><span class="qs-val">אושגולי→מסטיה</span></div>
+      <div class="qs"><span>🚐</span><span class="qs-val">מסטיה→בטומי</span></div>
+      <div class="qs"><span>🏙️</span><span class="qs-val">לילה בבטומי</span></div>
+    </div>
+  </div>
+  <div class="day-body">
+    <div class="day-map-panel">
+      <div id="map-day5" class="leaflet-map"></div>
+    </div>
+    <div class="day-right-panel">
+      <div class="photo-carousel" id="car5">
+        <div class="photo-slides" id="ps5">
+          <div class="photo-slide">
+            <img src="https://www.caucasus-trekking.com/Images/Treks/MestiaUshguli/Fullscreen/14_Panorama.jpg" alt="פנורמת קווקז" loading="lazy">
+            <div class="photo-caption">🌅 פנורמת קווקז — נוף לסיום מושלם של הטרק</div>
+          </div>
+          <div class="photo-slide">
+            <img src="https://www.caucasus-trekking.com/Images/Treks/MestiaUshguli/Fullscreen/00_Mestia.jpg" alt="מסטיה" loading="lazy">
+            <div class="photo-caption">🏙️ ביקור אחרון במסטיה לפני החזרה לבטומי</div>
+          </div>
+        </div>
+        <div class="photo-nav">
+          <button class="photo-btn" onclick="prevPhoto('ps5','pd5')">&#8250;</button>
+          <button class="photo-btn" onclick="nextPhoto('ps5','pd5')">&#8249;</button>
+        </div>
+        <div class="photo-dots" id="pd5">
+          <div class="photo-dot active"></div><div class="photo-dot"></div>
+        </div>
+      </div>
+      <div class="day-info">
+        <div class="info-card"><h4>🚗 שלב 1 — בוקר</h4><p>טקסי מקומי מאושגולי למסטיה (כ-3 שעות בדרכי עפר ציוריות). בדרך — נוף של הרי קווקז.</p></div>
+        <div class="info-card"><h4>🚐 שלב 2 — אחה"צ</h4><p>שאטל פרטי ממסטיה לבטומי (אותה חברה שהביאה, ~5 שעות). הגעה לבטומי בערב.</p></div>
+        <div class="info-card"><h4>🌊 בטומי</h4><p>לילה בבטומי על הים השחור — עיר שוקקת ומרתקת. ריסטורנטים, בר, חוף. הזמן לחגוג!</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 8 – TRANSPORT
+══════════════════════════════════════════ -->
+<div class="slide s-info" id="slide-8">
+  <h2>🚐 תחבורה ולוגיסטיקה</h2>
+  <div class="info-grid">
+    <div class="info-big-card">
+      <h3>🛫 הלוך — בטומי → מסטיה</h3>
+      <p>טרנספר פרטי מאורגן מבטומי למסטיה<br>מחיר לקבוצה:</p>
+      <div class="price-tag">~1,300 ₪ לקבוצה</div>
+    </div>
+    <div class="info-big-card">
+      <h3>🛬 חזור — אושגולי → בטומי</h3>
+      <p>• טקסי מקומי: אושגולי → מסטיה<br>• שאטל פרטי: מסטיה → בטומי<br>(אותה חברה כהלוך)</p>
+    </div>
+    <div class="info-big-card">
+      <h3>📍 נקודות מפגש</h3>
+      <ul style="list-style:none; display:flex; flex-direction:column; gap:6px;">
+        <li>✈️ <strong>נחיתה:</strong> בטומי</li>
+        <li>🏁 <strong>יציאה לטרק:</strong> מסטיה</li>
+        <li>🏆 <strong>סיום טרק:</strong> אושגולי</li>
+        <li>🌊 <strong>לילה אחרון:</strong> בטומי</li>
+      </ul>
+    </div>
+    <div class="info-big-card">
+      <h3>👥 גודל קבוצה ועלות</h3>
+      <p>11+ משתתפים<br>ככל שהקבוצה גדולה יותר — עלות לנפש יורדת.<br>ודאו אישור מכולם לפני הזמנה!</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 9 – ACCOMMODATION
+══════════════════════════════════════════ -->
+<div class="slide s-accom" id="slide-9">
+  <h2>🏠 לינות לאורך המסלול</h2>
+  <div class="accom-list">
+    <div class="accom-item"><div class="accom-icon">🏙️</div><div><div class="accom-location">בטומי</div><div class="accom-type">לילה ראשון ואחרון — דירת Airbnb לקבוצה 11+</div></div><div class="accom-platform">Airbnb</div></div>
+    <div class="accom-item"><div class="accom-icon">🏨</div><div><div class="accom-location">מסטיה</div><div class="accom-type">לפני הטרק — מלון / אכסניה בעיר</div></div><div class="accom-platform">Booking / Airbnb</div></div>
+    <div class="accom-item"><div class="accom-icon">🏡</div><div><div class="accom-location">ז'אבשי — יום 1</div><div class="accom-type">גסטהאוס מקומי "The Hostel" עם ארוחות</div></div><div class="accom-platform">מקומי</div></div>
+    <div class="accom-item"><div class="accom-icon">🏰</div><div><div class="accom-location">אדישי — יום 2</div><div class="accom-type">מגורים היסטוריים סואניים מסורתיים</div></div><div class="accom-platform">מקומי</div></div>
+    <div class="accom-item"><div class="accom-icon">🏕️</div><div><div class="accom-location">איפראלי — יום 3</div><div class="accom-type">גסטהאוס בכפר עם ארוחות</div></div><div class="accom-platform">מקומי</div></div>
+    <div class="accom-item"><div class="accom-icon">🏔️</div><div><div class="accom-location">אושגולי — יום 4</div><div class="accom-type">לינה בכפר הגבוה ביותר באירופה (2,200 מ')</div></div><div class="accom-platform">Booking / Airbnb</div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 10 – BUDGET
+══════════════════════════════════════════ -->
+<div class="slide" id="slide-10" style="flex-direction:column; background:linear-gradient(135deg,#091a28 0%,#0d2a1a 100%);">
+
+  <div style="padding:28px 50px 16px; border-bottom:1px solid rgba(78,205,196,.2);">
+    <h2 style="font-size:40px; color:#4ecdc4;">💰 הוצאות משוערות לאדם</h2>
+    <p style="font-size:15px; color:#a0d8ef; margin-top:6px;">מחירים ביולי 2026 • קבוצה של 11+ • הכל כולל</p>
+  </div>
+
+  <div style="flex:1; display:grid; grid-template-columns:1fr 1fr; gap:0; overflow:hidden;">
+
+    <!-- LEFT COL: expense cards -->
+    <div style="display:flex; flex-direction:column; gap:0; padding:20px 30px 20px 50px; justify-content:space-between;">
+
+      <!-- Flights -->
+      <div style="display:flex; align-items:center; gap:16px; background:rgba(255,255,255,.055); border-right:4px solid #4ecdc4; border-radius:12px; padding:13px 18px;">
+        <span style="font-size:32px;">✈️</span>
+        <div style="flex:1;">
+          <div style="font-size:16px; font-weight:700;">טיסות</div>
+          <div style="font-size:12px; color:#a0d8ef;">ת"א (TLV) ↔ בטומי (BUS) • יולי שיא עונה</div>
+        </div>
+        <div style="text-align:left;">
+          <div style="font-size:13px; color:#a0d8ef;">800 – 1,500 ₪</div>
+          <div style="font-size:18px; font-weight:700; color:#4ecdc4;">~1,150 ₪</div>
+        </div>
+      </div>
+
+      <!-- Transport -->
+      <div style="display:flex; align-items:center; gap:16px; background:rgba(255,255,255,.055); border-right:4px solid #45b7d1; border-radius:12px; padding:13px 18px;">
+        <span style="font-size:32px;">🚐</span>
+        <div style="flex:1;">
+          <div style="font-size:16px; font-weight:700;">תחבורה פנימית</div>
+          <div style="font-size:12px; color:#a0d8ef;">שאטל + טקסי מקומי (מחיר לנפש מחולק בקבוצה)</div>
+        </div>
+        <div style="text-align:left;">
+          <div style="font-size:13px; color:#a0d8ef;">200 – 300 ₪</div>
+          <div style="font-size:18px; font-weight:700; color:#45b7d1;">~250 ₪</div>
+        </div>
+      </div>
+
+      <!-- Accommodation -->
+      <div style="display:flex; align-items:center; gap:16px; background:rgba(255,255,255,.055); border-right:4px solid #ffd700; border-radius:12px; padding:13px 18px;">
+        <span style="font-size:32px;">🏠</span>
+        <div style="flex:1;">
+          <div style="font-size:16px; font-weight:700;">לינות — 7 לילות</div>
+          <div style="font-size:12px; color:#a0d8ef;">2× בטומי • 1× מסטיה • 3× גסטהאוס שביל • 1× אושגולי</div>
+        </div>
+        <div style="text-align:left;">
+          <div style="font-size:13px; color:#a0d8ef;">550 – 900 ₪</div>
+          <div style="font-size:18px; font-weight:700; color:#ffd700;">~700 ₪</div>
+        </div>
+      </div>
+
+      <!-- Food -->
+      <div style="display:flex; align-items:center; gap:16px; background:rgba(255,255,255,.055); border-right:4px solid #ff9f43; border-radius:12px; padding:13px 18px;">
+        <span style="font-size:32px;">🍽️</span>
+        <div style="flex:1;">
+          <div style="font-size:16px; font-weight:700;">אוכל — 8 ימים</div>
+          <div style="font-size:12px; color:#a0d8ef;">שביל: ב+ע כלולות בגסטהאוס • בטומי/מסטיה: מסעדות</div>
+        </div>
+        <div style="text-align:left;">
+          <div style="font-size:13px; color:#a0d8ef;">200 – 400 ₪</div>
+          <div style="font-size:18px; font-weight:700; color:#ff9f43;">~300 ₪</div>
+        </div>
+      </div>
+
+      <!-- Insurance + misc -->
+      <div style="display:flex; align-items:center; gap:16px; background:rgba(255,255,255,.055); border-right:4px solid #a29bfe; border-radius:12px; padding:13px 18px;">
+        <span style="font-size:32px;">🛡️</span>
+        <div style="flex:1;">
+          <div style="font-size:16px; font-weight:700;">ביטוח + שונות</div>
+          <div style="font-size:12px; color:#a0d8ef;">ביטוח כולל פינוי הרים • כניסות • SIM • ציוד</div>
+        </div>
+        <div style="text-align:left;">
+          <div style="font-size:13px; color:#a0d8ef;">300 – 600 ₪</div>
+          <div style="font-size:18px; font-weight:700; color:#a29bfe;">~450 ₪</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT COL: breakdown details + total -->
+    <div style="display:flex; flex-direction:column; gap:14px; padding:20px 50px 20px 30px; border-right:1px solid rgba(78,205,196,.15);">
+
+      <!-- Accommodation breakdown -->
+      <div style="background:rgba(255,255,255,.04); border-radius:14px; padding:16px 18px;">
+        <div style="font-size:14px; color:#ffd700; font-weight:700; margin-bottom:10px;">🏠 פירוט לינות לנפש</div>
+        <div style="display:flex; flex-direction:column; gap:6px; font-size:13px;">
+          <div style="display:flex; justify-content:space-between;"><span style="color:#cde;">בטומי × 2 (Airbnb קבוצתי)</span><span style="color:#ffd700;">70–120 ₪ / לילה</span></div>
+          <div style="display:flex; justify-content:space-between;"><span style="color:#cde;">מסטיה × 1</span><span style="color:#ffd700;">90–150 ₪ / לילה</span></div>
+          <div style="display:flex; justify-content:space-between;"><span style="color:#cde;">ז'אבשי / אדישי / איפראלי × 3 <span style="font-size:11px;">(כולל ב+ע)</span></span><span style="color:#ffd700;">70–110 ₪ / לילה</span></div>
+          <div style="display:flex; justify-content:space-between;"><span style="color:#cde;">אושגולי × 1</span><span style="color:#ffd700;">90–150 ₪ / לילה</span></div>
+        </div>
+      </div>
+
+      <!-- Food breakdown -->
+      <div style="background:rgba(255,255,255,.04); border-radius:14px; padding:16px 18px;">
+        <div style="font-size:14px; color:#ff9f43; font-weight:700; margin-bottom:10px;">🍽️ פירוט אוכל</div>
+        <div style="display:flex; flex-direction:column; gap:6px; font-size:13px;">
+          <div style="display:flex; justify-content:space-between;"><span style="color:#cde;">בטומי + מסטיה (מסעדות)</span><span style="color:#ff9f43;">80–130 ₪ / יום</span></div>
+          <div style="display:flex; justify-content:space-between;"><span style="color:#cde;">שביל — ארוחת צהריים + חטיפים</span><span style="color:#ff9f43;">25–40 ₪ / יום</span></div>
+          <div style="display:flex; justify-content:space-between;"><span style="color:#cde;">אושגולי (מסעדות)</span><span style="color:#ff9f43;">60–100 ₪ / יום</span></div>
+          <div style="display:flex; justify-content:space-between; border-top:1px solid rgba(255,255,255,.1); padding-top:6px; margin-top:2px;"><span style="color:#cde;">ממוצע ליום</span><span style="color:#ff9f43; font-weight:700;">~38 ₪</span></div>
+        </div>
+      </div>
+
+      <!-- TOTAL -->
+      <div style="background:linear-gradient(135deg, rgba(78,205,196,.18), rgba(69,183,209,.12)); border:2px solid rgba(78,205,196,.45); border-radius:16px; padding:20px 22px; text-align:center; margin-top:auto;">
+        <div style="font-size:14px; color:#a0d8ef; margin-bottom:4px;">סה"כ משוער לאדם</div>
+        <div style="display:flex; justify-content:center; align-items:baseline; gap:16px; margin-bottom:8px;">
+          <div>
+            <div style="font-size:12px; color:#a0d8ef;">מינימום</div>
+            <div style="font-size:28px; font-weight:900; color:#4ecdc4;">2,050 ₪</div>
+          </div>
+          <div style="font-size:30px; color:rgba(255,255,255,.3);">–</div>
+          <div>
+            <div style="font-size:12px; color:#a0d8ef;">מקסימום</div>
+            <div style="font-size:28px; font-weight:900; color:#ff6b6b;">3,700 ₪</div>
+          </div>
+        </div>
+        <div style="background:rgba(255,255,255,.1); border-radius:10px; padding:8px 14px;">
+          <span style="font-size:22px; font-weight:900; color:#fff;">ממוצע: ~2,850 ₪</span>
+        </div>
+        <div style="font-size:11px; color:rgba(160,216,239,.6); margin-top:8px;">* לא כולל ציוד טרקינג ומזכרות</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 11 – END
+══════════════════════════════════════════ -->
+<div class="slide s-end" id="slide-11">
+  <div class="bg-photo"></div>
+  <div class="overlay"></div>
+  <div class="content">
+    <div style="font-size:70px">🏔️🇬🇪✨</div>
+    <h2>בהצלחה ונסיעה טובה!</h2>
+    <p>מסטיה–אושגולי — אחד מטרקי הקווקז היפים בעולם</p>
+    <div class="checklist">
+      <div class="cl-item">✅ נעלי טרקינג איכותיות עם תמיכת קרסול</div>
+      <div class="cl-item">✅ מקלות הליכה</div>
+      <div class="cl-item">✅ ביגוד לגשם ולקור (גם בקיץ!)</div>
+      <div class="cl-item">✅ ביטוח נסיעות כולל פינוי הרים</div>
+      <div class="cl-item">✅ כרטיס SIM גאורגי (מגיאסל)</div>
+      <div class="cl-item">✅ מזומן בלארי גאורגי (GEL)</div>
+      <div class="cl-item">✅ אפליקציית Gaia GPS עם מסלול מורד</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     NAVIGATION
+══════════════════════════════════════════ -->
+<div class="nav">
+  <button id="prev-btn" onclick="changeSlide(-1)" disabled>&#9664; הקודם</button>
+  <div class="dots" id="dots"></div>
+  <span id="slide-counter">1 / 10</span>
+  <button id="next-btn" onclick="changeSlide(1)">הבא &#9654;</button>
+</div>
+
+<script>
+// ════════════════════════════════════════
+//  SLIDE NAVIGATION
+// ════════════════════════════════════════
+let current = 1;
+const total = 11;
+const initializedMaps = {};
+
+const dotsEl = document.getElementById('dots');
+for (let i = 1; i <= total; i++) {
+  const d = document.createElement('div');
+  d.className = 'dot' + (i === 1 ? ' active' : '');
+  d.onclick = () => goTo(i);
+  dotsEl.appendChild(d);
+}
+
+function goTo(n) {
+  document.getElementById('slide-' + current).classList.remove('active');
+  document.querySelectorAll('.dot')[current - 1].classList.remove('active');
+  current = n;
+  const slide = document.getElementById('slide-' + current);
+  slide.classList.add('active');
+  document.querySelectorAll('.dot')[current - 1].classList.add('active');
+  document.getElementById('slide-counter').textContent = current + ' / ' + total;
+  document.getElementById('prev-btn').disabled = current === 1;
+  document.getElementById('next-btn').disabled = current === total;
+  // Init map for this slide if needed
+  setTimeout(() => initMapForSlide(current), 80);
+}
+
+function changeSlide(dir) {
+  const n = current + dir;
+  if (n >= 1 && n <= total) goTo(n);
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowLeft'  || e.key === 'ArrowDown')  changeSlide(1);
+  if (e.key === 'ArrowRight' || e.key === 'ArrowUp')    changeSlide(-1);
+});
+
+// ════════════════════════════════════════
+//  PHOTO CAROUSEL
+// ════════════════════════════════════════
+const carouselState = {};
+
+function getCarState(psId) {
+  if (!carouselState[psId]) {
+    const slides = document.getElementById(psId).children.length;
+    carouselState[psId] = { idx: 0, total: slides };
+  }
+  return carouselState[psId];
+}
+
+function updateCarousel(psId, pdId) {
+  const st = getCarState(psId);
+  document.getElementById(psId).style.transform = `translateX(${st.idx * 100}%)`;
+  const dots = document.getElementById(pdId).querySelectorAll('.photo-dot');
+  dots.forEach((d, i) => d.classList.toggle('active', i === st.idx));
+}
+
+function nextPhoto(psId, pdId) {
+  const st = getCarState(psId);
+  st.idx = (st.idx + 1) % st.total;
+  updateCarousel(psId, pdId);
+}
+
+function prevPhoto(psId, pdId) {
+  const st = getCarState(psId);
+  st.idx = (st.idx - 1 + st.total) % st.total;
+  updateCarousel(psId, pdId);
+}
+
+// ════════════════════════════════════════
+//  LEAFLET MAPS
+// ════════════════════════════════════════
+
+// Custom icon helper
+function makeIcon(label, cls) {
+  return L.divIcon({
+    html: `<div class="custom-marker ${cls}">${label}</div>`,
+    className: '', iconAnchor: [0, 0], popupAnchor: [10, -10]
+  });
+}
+
+const TOPO_TILES = {
+  url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+  attr: '© OpenStreetMap contributors, © OpenTopoMap (CC-BY-SA)'
+};
+const OSM_TILES = {
+  url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+  attr: '© OpenStreetMap contributors'
+};
+
+function addLayer(map) {
+  L.tileLayer(TOPO_TILES.url, { attribution: TOPO_TILES.attr, maxZoom: 17 }).addTo(map);
+}
+
+// Route coords (approximate, based on known trek waypoints)
+const FULL_ROUTE = [
+  [43.0554, 42.7215], // Mestia
+  [43.068,  42.740],
+  [43.082,  42.788],
+  [43.098,  42.845],
+  [43.1058, 42.8579], // Zhabeshi
+  [43.122,  42.876],
+  [43.145,  42.902],
+  [43.1638, 42.9195], // Adishi
+  [43.172,  42.950],
+  [43.182,  42.997],
+  [43.1891, 43.0524], // Iprali
+  [43.185,  43.095],
+  [43.175,  43.140],
+  [43.155,  43.195],
+  [43.125,  43.240],
+  [43.0990, 43.258],
+  [43.0669, 43.2633], // Ushguli
+];
+
+const SEGMENTS = {
+  day1: FULL_ROUTE.slice(0, 5),
+  day2: FULL_ROUTE.slice(4, 9),
+  day3: FULL_ROUTE.slice(8, 12),
+  day4: FULL_ROUTE.slice(11, 17),
+  full: FULL_ROUTE
+};
+
+const STOPS = [
+  { latlng: [43.0554, 42.7215], name: '🟢 מסטיה',    cls: 'marker-start' },
+  { latlng: [43.1058, 42.8579], name: '⛺ ז\'אבשי',  cls: 'marker-camp'  },
+  { latlng: [43.1638, 42.9195], name: '⛺ אדישי',    cls: 'marker-camp'  },
+  { latlng: [43.1891, 43.0524], name: '⛺ איפראלי',  cls: 'marker-camp'  },
+  { latlng: [43.0669, 43.2633], name: '🔴 אושגולי',  cls: 'marker-end'   },
+];
+
+function drawRoute(map, coords, stops) {
+  L.polyline(coords, { color: '#4ecdc4', weight: 4, opacity: 0.9, dashArray: null }).addTo(map);
+  stops.forEach(s => {
+    L.marker(s.latlng, { icon: makeIcon(s.name, s.cls) })
+      .addTo(map)
+      .bindPopup(`<b>${s.name}</b>`);
+  });
+}
+
+function initMapForSlide(slideNum) {
+  if (initializedMaps[slideNum]) return;
+
+  const dayCfg = {
+    3: { id: 'map-day1', route: SEGMENTS.day1, stops: [STOPS[0], STOPS[1]] },
+    4: { id: 'map-day2', route: SEGMENTS.day2, stops: [STOPS[1], STOPS[2]] },
+    5: { id: 'map-day3', route: SEGMENTS.day3, stops: [STOPS[2], STOPS[3]] },
+    6: { id: 'map-day4', route: SEGMENTS.day4, stops: [STOPS[3], STOPS[4]] },
+    7: { // day 5 — full return view
+      id: 'map-day5',
+      route: SEGMENTS.full,
+      stops: STOPS,
+    }
+  };
+
+  const cfg = dayCfg[slideNum];
+  if (!cfg) return;
+
+  const m = L.map(cfg.id, { zoomControl: true });
+  addLayer(m);
+  drawRoute(m, cfg.route, cfg.stops);
+  m.fitBounds(L.polyline(cfg.route).getBounds(), { padding: [40, 40] });
+  initializedMaps[slideNum] = m;
+}
+
+</script>
+</body>
+</html>
