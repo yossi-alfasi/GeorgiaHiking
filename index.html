@@ -224,7 +224,7 @@
       <div class="stat-box"><div class="sv">5</div><div class="sl">ימי טיול</div></div>
       <div class="stat-box"><div class="sv">57.8</div><div class="sl">ק"מ סה"כ</div></div>
       <div class="stat-box"><div class="sv">3,209</div><div class="sl">מ' עלייה</div></div>
-      <div class="stat-box"><div class="sv">11+</div><div class="sl">משתתפים</div></div>
+      <div class="stat-box"><div class="sv">11</div><div class="sl">משתתפים</div></div>
     </div>
     <div class="route-flow">
       <div class="rf-item"><div class="rf-dot" style="background:#4ecdc4"></div><strong>מסטיה</strong> — נקודת פתיחה</div>
@@ -520,7 +520,12 @@
     </div>
     <div class="info-big-card">
       <h3>👥 גודל קבוצה ועלות</h3>
-      <p>11+ משתתפים<br>ככל שהקבוצה גדולה יותר — עלות לנפש יורדת.<br>ודאו אישור מכולם לפני הזמנה!</p>
+      <p>11 משתתפים</p>
+      <div style="margin-top:10px;font-size:13px;line-height:2;color:#a0d8ef;">
+        <div style="font-weight:700;color:#ffd700;margin-bottom:4px;">💱 שערי המרה</div>
+        <div>1 ₪ ≈ 0.74 ₾ לארי</div>
+        <div>1 $ ≈ 2.70 ₾ לארי</div>
+      </div>
     </div>
   </div>
 </div>
@@ -531,7 +536,7 @@
 <div class="slide s-accom" id="slide-9">
   <h2>🏠 לינות לאורך המסלול</h2>
   <div class="accom-list">
-    <div class="accom-item"><div class="accom-icon">🏙️</div><div><div class="accom-location">בטומי</div><div class="accom-type">לילה ראשון ואחרון — דירת Airbnb לקבוצה 11+</div></div><div class="accom-platform">Airbnb</div></div>
+    <div class="accom-item"><div class="accom-icon">🏙️</div><div><div class="accom-location">בטומי</div><div class="accom-type">לילה ראשון ואחרון — דירת Airbnb לקבוצה 11</div></div><div class="accom-platform">Airbnb</div></div>
     <div class="accom-item"><div class="accom-icon">🏨</div><div><div class="accom-location">מסטיה</div><div class="accom-type">לפני הטרק — מלון / אכסניה בעיר</div></div><div class="accom-platform">Booking / Airbnb</div></div>
     <div class="accom-item"><div class="accom-icon">🏡</div><div><div class="accom-location">ז'אבשי — יום 1</div><div class="accom-type">גסטהאוס מקומי "The Hostel" עם ארוחות</div></div><div class="accom-platform">מקומי</div></div>
     <div class="accom-item"><div class="accom-icon">🏰</div><div><div class="accom-location">אדישי — יום 2</div><div class="accom-type">מגורים היסטוריים סואניים מסורתיים</div></div><div class="accom-platform">מקומי</div></div>
@@ -547,7 +552,7 @@
 
   <div style="padding:28px 50px 16px; border-bottom:1px solid rgba(78,205,196,.2);">
     <h2 style="font-size:40px; color:#4ecdc4;">💰 הוצאות משוערות לאדם</h2>
-    <p style="font-size:15px; color:#a0d8ef; margin-top:6px;">מחירים ביולי 2026 • קבוצה של 11+ • הכל כולל</p>
+    <p style="font-size:15px; color:#a0d8ef; margin-top:6px;">מחירים ביולי 2026 • קבוצה של 11 • הכל כולל</p>
   </div>
 
   <div style="flex:1; display:grid; grid-template-columns:1fr 1fr; gap:0; overflow:hidden;">
@@ -787,13 +792,13 @@ function makeIcon(label, cls) {
   });
 }
 
-// Logo icon — tribe logo + name label below
+// Logo icon — tribe logo centered exactly on the stop coordinate, label below
 function makeLogoIcon(name) {
   const cleanName = name.replace(/^[🟢⛺🔴🚙🏖️🚌]\s*/, '');
   return L.divIcon({
-    html: `<div style="text-align:center;width:80px;margin-left:-20px">
-      <img src="שבט הנשיא.jpg" style="width:40px;height:40px;object-fit:cover;border-radius:50%;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.6)">
-      <div style="font-size:13px;font-weight:900;color:#000;text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 3px #fff;margin-top:2px;white-space:nowrap">${cleanName}</div>
+    html: `<div style="position:relative;width:40px;height:40px">
+      <img src="שבט הנשיא.jpg" style="width:40px;height:40px;object-fit:cover;border-radius:50%;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.6);display:block">
+      <div style="position:absolute;top:43px;left:50%;transform:translateX(-50%);font-size:13px;font-weight:900;color:#000;text-shadow:0 0 3px #fff,0 0 3px #fff;white-space:nowrap">${cleanName}</div>
     </div>`,
     className: '',
     iconAnchor: [20, 20]
@@ -820,10 +825,8 @@ const FULL_ROUTE = [
   [43.046,  42.800],
   [43.047,  42.835],
   [43.046,  42.867],  // Zhabeshi
-  [43.060,  42.880],
-  [43.078,  42.895],  // Chikhunderi pass area (~2,750 מ׳)
-  [43.045,  42.910],
-  [43.020,  42.913],
+  [43.030,  42.888],
+  [43.012,  42.902],
   [42.998,  42.915],  // Adishi
   [42.978,  42.918],
   [42.958,  42.921],
@@ -868,9 +871,9 @@ const RETURN_STOPS = [
 
 const SEGMENTS = {
   day1: FULL_ROUTE.slice(0, 5),   // Mestia (0) → Zhabeshi (4)
-  day2: FULL_ROUTE.slice(4, 10),  // Zhabeshi (4) → Adishi (9)
-  day3: FULL_ROUTE.slice(9, 13),  // Adishi (9) → Iprali (12)
-  day4: FULL_ROUTE.slice(12, 17), // Iprali (12) → Ushguli (16)
+  day2: FULL_ROUTE.slice(4, 8),   // Zhabeshi (4) → Adishi (7)
+  day3: FULL_ROUTE.slice(7, 11),  // Adishi (7) → Iprali (10)
+  day4: FULL_ROUTE.slice(10, 15), // Iprali (10) → Ushguli (14)
   full: FULL_ROUTE
 };
 
@@ -913,7 +916,7 @@ function drawOverviewRoute(map) {
   // Distance labels
   [
     { mid: [(STOPS[0].latlng[0]+STOPS[1].latlng[0])/2, (STOPS[0].latlng[1]+STOPS[1].latlng[1])/2], label: '16.1 ק"מ' },
-    { mid: [(STOPS[1].latlng[0]+STOPS[2].latlng[0])/2, (STOPS[1].latlng[1]+STOPS[2].latlng[1])/2], label: '10.6 ק"מ' },
+    { mid: SEGMENTS.day2[Math.floor(SEGMENTS.day2.length / 2)], label: '10.6 ק"מ' },
     { mid: [(STOPS[2].latlng[0]+STOPS[3].latlng[0])/2, (STOPS[2].latlng[1]+STOPS[3].latlng[1])/2], label: '18.7 ק"מ' },
     { mid: SEGMENTS.day4[Math.floor(SEGMENTS.day4.length / 2)], label: '12.4 ק"מ' },
   ].forEach(({ mid, label }) => {
