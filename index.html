@@ -161,7 +161,7 @@
     .accom-icon { font-size: 32px; }
     .accom-location { font-size: 20px; font-weight: 700; flex: 1; }
     .accom-type { font-size: 14px; color: #a0d8ef; }
-    .accom-platform { background: rgba(78,205,196,.2); border: 1px solid rgba(78,205,196,.4); border-radius: 7px; padding: 3px 10px; font-size: 13px; color: #4ecdc4; }
+    .accom-platform { background: rgba(78,205,196,.2); border: 1px solid rgba(78,205,196,.4); border-radius: 7px; padding: 3px 10px; font-size: 13px; color: #4ecdc4; width: fit-content; margin-top: 4px; }
 
     /* ===== SLIDE – END ===== */
     .s-end {
@@ -192,6 +192,151 @@
       font-size: 13px; font-weight: 900; white-space: nowrap;
       text-shadow: 0 0 3px #fff, 0 0 3px #fff, 0 0 3px #fff;
       pointer-events: none;
+    }
+
+    /* ══════════════════════════════════════
+       MOBILE — גלילה אנכית (≤768px)
+       כל השקפים מוצגים בזה אחר זה
+    ══════════════════════════════════════ */
+    @media (max-width: 768px) {
+
+      /* Body: scrollable */
+      body { overflow-y: auto !important; height: auto !important; }
+
+      /* All slides: visible, stacked, relative position */
+      .slide {
+        display: flex !important;
+        position: relative !important;
+        width: 100%;
+        height: auto;
+        min-height: 100svh;
+        animation: none !important;
+        border-bottom: 1px solid rgba(255,255,255,.07);
+      }
+
+      /* Hide desktop navigation */
+      .nav { display: none !important; }
+
+      /* ── Slide 1: Title ── */
+      .s-title h1 { font-size: 34px; letter-spacing: 0; }
+      .flag-big   { font-size: 46px; }
+      .sub        { font-size: 15px; }
+      .route-pill { font-size: 13px; padding: 8px 16px; }
+
+      /* ── Slide 2: Overview map ── */
+      .s-overview { flex-direction: column; min-height: auto; }
+      .overview-map { flex: none; height: 55vw; min-height: 260px; }
+      .overview-right {
+        width: 100%; flex-shrink: 0; height: auto;
+        padding: 12px 16px 20px;
+        border-right: none;
+        border-top: 2px solid rgba(78,205,196,.25);
+      }
+      .overview-right h2 { font-size: 17px; margin-bottom: 8px; }
+      .stat-grid { grid-template-columns: repeat(4,1fr); gap: 6px; }
+      .stat-box  { padding: 8px 4px; }
+      .stat-box .val { font-size: 18px; }
+      .stat-box .lbl { font-size: 10px; }
+
+      /* ── Slides 3–7: Day slides ── */
+      .s-day { min-height: auto; height: auto; }
+      .day-header { padding: 8px 14px; flex-wrap: wrap; gap: 6px; }
+      .day-header h2 { font-size: 16px; }
+      .quick-stats { flex-wrap: wrap; gap: 6px; }
+      .qs     { font-size: 12px; padding: 4px 8px; }
+      .qs-val { font-size: 13px; }
+
+      .day-body { flex-direction: column; overflow: visible; height: auto; }
+      .day-map-panel { width: 100%; height: 260px; flex-shrink: 0; }
+      .day-right-panel {
+        flex: none; height: auto;
+        border-right: none; overflow: visible;
+        border-top: 2px solid rgba(78,205,196,.2);
+      }
+      .photo-carousel { flex: none; height: 200px; overflow: hidden; }
+      .day-info { flex: none; height: auto; overflow-y: visible; padding: 12px 14px 20px; }
+      .info-card { padding: 8px 10px; }
+      .info-card h4 { font-size: 11px; }
+      .info-card p  { font-size: 12px; }
+
+      /* ── Slide 8: Logistics ── */
+      .s-info { padding: 20px 16px; min-height: auto; height: auto; }
+      .s-info > h2 { font-size: 24px; margin-bottom: 14px; }
+      .info-grid { grid-template-columns: 1fr; gap: 12px; }
+      .info-big-card { padding: 16px 14px; font-size: 13px; }
+      .info-big-card h3 { font-size: 16px; }
+
+      /* ── Slide 9: Accommodation ── */
+      .s-accom { padding: 20px 16px; min-height: auto; height: auto; }
+      .accom-list { gap: 8px; }
+      .accom-item { padding: 10px 14px; gap: 10px; }
+      .accom-icon { font-size: 22px; }
+      .accom-location { font-size: 15px; }
+      .accom-type { font-size: 12px; }
+
+      /* ── Slide 10: Budget — mobile only ── */
+      #slide-10 { flex-direction: column !important; min-height: auto !important; height: auto !important; }
+      #slide-10 > div:first-child { padding: 10px 14px 8px !important; }
+      #slide-10 > div:first-child h2 { font-size: 20px !important; }
+      #slide-10 > div:first-child p  { font-size: 12px !important; margin-top: 2px !important; }
+      #slide10-grid { grid-template-columns: 1fr !important; overflow: visible !important; height: auto !important; flex: none !important; }
+      /* Left col: 5 cards stacked */
+      #slide10-left { padding: 10px 14px 4px !important; justify-content: flex-start !important; gap: 9px !important; }
+      #slide10-left > div { padding: 8px 12px !important; gap: 10px !important; border-radius: 10px !important; }
+      #slide10-left > div > span { font-size: 22px !important; }
+      #slide10-left > div > div:first-of-type > div:first-child { font-size: 13px !important; }
+      #slide10-left > div > div:first-of-type > div:last-child  { font-size: 11px !important; }
+      #slide10-left > div > div[style*="text-align"] > div:last-child { font-size: 14px !important; font-weight: 700; }
+      #slide10-left > div > div[style*="text-align"] > div:first-child { font-size: 11px !important; }
+      /* Total box */
+      #slide10-right { padding: 8px 14px 20px !important; border-right: none !important; border-top: 1px solid rgba(78,205,196,.2) !important; justify-content: flex-start !important; }
+      #slide10-right > div { padding: 14px !important; }
+      #slide10-right div[style*="font-size:28px"] { font-size: 20px !important; }
+      #slide10-right span[style*="font-size:22px"] { font-size: 15px !important; }
+
+      /* ── Slide 11: End ── */
+      .s-end h2  { font-size: 30px; }
+      .s-end p   { font-size: 14px; }
+      .checklist { gap: 6px; }
+      .cl-item   { font-size: 13px; padding: 8px 14px; }
+
+      /* ── Slide 12: Tips ── */
+      #slide-12 { flex-direction: column !important; min-height: auto !important; height: auto !important; }
+      #slide-12 > div:first-child { padding: 10px 14px 8px !important; }
+      #slide-12 > div:first-child h2 { font-size: 20px !important; }
+      #slide12-grid { grid-template-columns: 1fr !important; overflow: visible !important; height: auto !important; flex: none !important; }
+      /* Left col: tips stacked */
+      #slide12-left {
+        flex: none !important;
+        height: auto !important;
+        overflow: visible !important;
+        padding: 10px 14px 4px !important;
+        gap: 8px !important;
+        justify-content: flex-start !important;
+      }
+      /* Right col: videos + guides below tips */
+      #slide12-right {
+        flex: none !important;
+        height: auto !important;
+        overflow: visible !important;
+        padding: 8px 14px 20px !important;
+        border-right: none !important;
+        border-top: 1px solid rgba(150,100,255,.2) !important;
+        gap: 10px !important;
+        justify-content: flex-start !important;
+      }
+      .video-grid-3col { grid-template-columns: 1fr 1fr !important; }
+    }
+
+    /* ── 480px: small phone adjustments ── */
+    @media (max-width: 480px) {
+      .s-title h1  { font-size: 26px; }
+      .flag-big    { font-size: 38px; }
+      .stat-grid   { grid-template-columns: 1fr 1fr; }
+      .overview-map { min-height: 220px; }
+      .day-map-panel { height: 220px; }
+      .photo-carousel { height: 170px; }
+      .video-grid-3col { grid-template-columns: 1fr !important; }
     }
   </style>
 </head>
@@ -536,12 +681,12 @@
 <div class="slide s-accom" id="slide-9">
   <h2>🏠 לינות לאורך המסלול</h2>
   <div class="accom-list">
-    <div class="accom-item"><div class="accom-icon">🏙️</div><div><div class="accom-location">בטומי</div><div class="accom-type">לילה ראשון ואחרון — דירת Airbnb לקבוצה 11</div></div><div class="accom-platform">Airbnb</div></div>
-    <div class="accom-item"><div class="accom-icon">🏨</div><div><div class="accom-location">מסטיה</div><div class="accom-type">לפני הטרק — מלון / אכסניה בעיר</div></div><div class="accom-platform">Booking / Airbnb</div></div>
-    <div class="accom-item"><div class="accom-icon">🏡</div><div><div class="accom-location">ז'אבשי — יום 1</div><div class="accom-type">גסטהאוס מקומי "The Hostel" עם ארוחות</div></div><div class="accom-platform">מקומי</div></div>
-    <div class="accom-item"><div class="accom-icon">🏰</div><div><div class="accom-location">אדישי — יום 2</div><div class="accom-type">מגורים היסטוריים סואניים מסורתיים</div></div><div class="accom-platform">מקומי</div></div>
-    <div class="accom-item"><div class="accom-icon">🏕️</div><div><div class="accom-location">איפראלי — יום 3</div><div class="accom-type">גסטהאוס בכפר עם ארוחות</div></div><div class="accom-platform">מקומי</div></div>
-    <div class="accom-item"><div class="accom-icon">🏔️</div><div><div class="accom-location">אושגולי — יום 4</div><div class="accom-type">לינה בכפר הגבוה ביותר באירופה (2,200 מ')</div></div><div class="accom-platform">Booking / Airbnb</div></div>
+    <div class="accom-item"><div class="accom-icon">🏙️</div><div><div class="accom-location">בטומי</div><div class="accom-type">לילה ראשון ואחרון — דירת Airbnb לקבוצה 11</div><div class="accom-platform">Airbnb</div></div></div>
+    <div class="accom-item"><div class="accom-icon">🏨</div><div><div class="accom-location">מסטיה</div><div class="accom-type">לפני הטרק — מלון / אכסניה בעיר</div><div class="accom-platform">Booking / Airbnb</div></div></div>
+    <div class="accom-item"><div class="accom-icon">🏡</div><div><div class="accom-location">ז'אבשי — יום 1</div><div class="accom-type">גסטהאוס מקומי "The Hostel" עם ארוחות</div><div class="accom-platform">מקומי</div></div></div>
+    <div class="accom-item"><div class="accom-icon">🏰</div><div><div class="accom-location">אדישי — יום 2</div><div class="accom-type">מגורים היסטוריים סואניים מסורתיים</div><div class="accom-platform">מקומי</div></div></div>
+    <div class="accom-item"><div class="accom-icon">🏕️</div><div><div class="accom-location">איפראלי — יום 3</div><div class="accom-type">גסטהאוס בכפר עם ארוחות</div><div class="accom-platform">מקומי</div></div></div>
+    <div class="accom-item"><div class="accom-icon">🏔️</div><div><div class="accom-location">אושגולי — יום 4</div><div class="accom-type">לינה בכפר הגבוה ביותר באירופה (2,200 מ')</div><div class="accom-platform">Booking / Airbnb</div></div></div>
   </div>
 </div>
 
@@ -555,10 +700,10 @@
     <p style="font-size:15px; color:#a0d8ef; margin-top:4px;">מחירים ביולי 2026 • קבוצה של 11 • הכל כולל</p>
   </div>
 
-  <div style="flex:1; display:grid; grid-template-columns:1fr 1fr; gap:0; overflow:hidden;">
+  <div id="slide10-grid" style="flex:1; display:grid; grid-template-columns:1fr 1fr; gap:0; overflow:hidden;">
 
     <!-- LEFT COL: expense cards -->
-    <div style="display:flex; flex-direction:column; gap:0; padding:12px 30px 70px 50px; justify-content:space-between;">
+    <div id="slide10-left" style="display:flex; flex-direction:column; gap:0; padding:12px 30px 70px 50px; justify-content:space-between;">
 
       <!-- Flights -->
       <div style="display:flex; align-items:center; gap:16px; background:rgba(255,255,255,.055); border-right:4px solid #4ecdc4; border-radius:12px; padding:9px 18px;">
@@ -627,33 +772,9 @@
 
     </div>
 
-    <!-- RIGHT COL: breakdown details + total -->
-    <div style="display:flex; flex-direction:column; gap:14px; padding:20px 50px 20px 30px; border-right:1px solid rgba(78,205,196,.15);">
-
-      <!-- Accommodation breakdown -->
-      <div style="background:rgba(255,255,255,.04); border-radius:14px; padding:16px 18px;">
-        <div style="font-size:14px; color:#ffd700; font-weight:700; margin-bottom:10px;">🏠 פירוט לינות לנפש</div>
-        <div style="display:flex; flex-direction:column; gap:6px; font-size:13px;">
-          <div style="display:flex; justify-content:space-between;"><span style="color:#cde;">בטומי × 2 (Airbnb קבוצתי)</span><span style="color:#ffd700;">70–120 ₪ / לילה</span></div>
-          <div style="display:flex; justify-content:space-between;"><span style="color:#cde;">מסטיה × 1</span><span style="color:#ffd700;">90–150 ₪ / לילה</span></div>
-          <div style="display:flex; justify-content:space-between;"><span style="color:#cde;">ז'אבשי / אדישי / איפראלי × 3 <span style="font-size:11px;">(כולל ב+ע)</span></span><span style="color:#ffd700;">70–110 ₪ / לילה</span></div>
-          <div style="display:flex; justify-content:space-between;"><span style="color:#cde;">אושגולי × 1</span><span style="color:#ffd700;">90–150 ₪ / לילה</span></div>
-        </div>
-      </div>
-
-      <!-- Food breakdown -->
-      <div style="background:rgba(255,255,255,.04); border-radius:14px; padding:16px 18px;">
-        <div style="font-size:14px; color:#ff9f43; font-weight:700; margin-bottom:10px;">🍽️ פירוט אוכל</div>
-        <div style="display:flex; flex-direction:column; gap:6px; font-size:13px;">
-          <div style="display:flex; justify-content:space-between;"><span style="color:#cde;">בטומי + מסטיה (מסעדות)</span><span style="color:#ff9f43;">80–130 ₪ / יום</span></div>
-          <div style="display:flex; justify-content:space-between;"><span style="color:#cde;">שביל — ארוחת צהריים + חטיפים</span><span style="color:#ff9f43;">25–40 ₪ / יום</span></div>
-          <div style="display:flex; justify-content:space-between;"><span style="color:#cde;">אושגולי (מסעדות)</span><span style="color:#ff9f43;">60–100 ₪ / יום</span></div>
-          <div style="display:flex; justify-content:space-between; border-top:1px solid rgba(255,255,255,.1); padding-top:6px; margin-top:2px;"><span style="color:#cde;">ממוצע ליום</span><span style="color:#ff9f43; font-weight:700;">~38 ₪</span></div>
-        </div>
-      </div>
-
-      <!-- TOTAL -->
-      <div style="background:linear-gradient(135deg, rgba(78,205,196,.18), rgba(69,183,209,.12)); border:2px solid rgba(78,205,196,.45); border-radius:16px; padding:20px 22px; text-align:center; margin-top:auto;">
+    <!-- RIGHT COL: total -->
+    <div id="slide10-right" style="display:flex; flex-direction:column; justify-content:center; padding:20px 50px 20px 30px; border-right:1px solid rgba(78,205,196,.15);">
+      <div style="background:linear-gradient(135deg, rgba(78,205,196,.18), rgba(69,183,209,.12)); border:2px solid rgba(78,205,196,.45); border-radius:16px; padding:20px 22px; text-align:center;">
         <div style="font-size:14px; color:#a0d8ef; margin-bottom:4px;">סה"כ משוער לאדם</div>
         <div style="display:flex; justify-content:center; align-items:baseline; gap:16px; margin-bottom:8px;">
           <div>
@@ -671,7 +792,6 @@
         </div>
         <div style="font-size:11px; color:rgba(160,216,239,.6); margin-top:8px;">* לא כולל ציוד טרקינג ומזכרות</div>
       </div>
-
     </div>
   </div>
 </div>
@@ -708,10 +828,10 @@
     <p style="font-size:14px; color:#a0d8ef; margin-top:4px;">עצות מעדכניות ממטיילים שעשו את המסלול ב-2025–2026</p>
   </div>
 
-  <div style="flex:1; display:grid; grid-template-columns:1fr 1fr; gap:0; overflow:hidden;">
+  <div id="slide12-grid" style="flex:1; display:grid; grid-template-columns:1fr 1fr; gap:0; overflow:hidden;">
 
     <!-- LEFT: Tips -->
-    <div style="padding:16px 24px 70px 50px; display:flex; flex-direction:column; gap:10px; overflow:hidden;">
+    <div id="slide12-left" style="padding:16px 24px 70px 50px; display:flex; flex-direction:column; gap:10px; overflow:hidden;">
 
       <div style="display:flex; align-items:flex-start; gap:12px; background:rgba(255,255,255,.05); border-right:4px solid #e74c3c; border-radius:10px; padding:10px 14px;">
         <span style="font-size:22px; flex-shrink:0;">📅</span>
@@ -764,12 +884,12 @@
     </div>
 
     <!-- RIGHT: Videos + Guides -->
-    <div style="padding:16px 50px 70px 24px; display:flex; flex-direction:column; gap:12px; border-right:1px solid rgba(150,100,255,.15);">
+    <div id="slide12-right" style="padding:16px 50px 70px 24px; display:flex; flex-direction:column; gap:12px; border-right:1px solid rgba(150,100,255,.15);">
 
       <div style="font-size:15px; font-weight:700; color:#c39bd3;">🎬 סרטונים מהמסלול</div>
 
       <!-- Video thumbnail grid -->
-      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;">
+      <div class="video-grid-3col" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;">
 
         <a href="https://www.youtube.com/watch?v=XSenRSg6SgE" target="_blank" style="text-decoration:none; display:flex; flex-direction:column; gap:6px;">
           <div style="position:relative; border-radius:10px; overflow:hidden; border:1px solid rgba(255,80,80,.4);">
@@ -1099,6 +1219,52 @@ function initMapForSlide(slideNum) {
   m.fitBounds(L.polyline(cfg.route).getBounds(), { padding: [40, 40] });
   initializedMaps[slideNum] = m;
 }
+
+// ════════════════════════════════════════
+//  MOBILE: גלילה אנכית — אתחול מפות עם IntersectionObserver
+// ════════════════════════════════════════
+const isMobile = () => window.innerWidth <= 768;
+
+if (isMobile()) {
+  // אתחל מפות כשכל שקף נכנס לתצוגה
+  const mapObserver = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const n = parseInt(e.target.id.replace('slide-', ''));
+        if (!isNaN(n)) initMapForSlide(n);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  for (let i = 1; i <= total; i++) {
+    const el = document.getElementById('slide-' + i);
+    if (el) mapObserver.observe(el);
+  }
+}
+
+// ════════════════════════════════════════
+//  DESKTOP: swipe לניווט בין שקפים
+// ════════════════════════════════════════
+let touchStartX = 0, touchStartY = 0;
+document.addEventListener('touchstart', e => {
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+}, { passive: true });
+document.addEventListener('touchend', e => {
+  if (isMobile()) return; // במובייל — גלילה טבעית, לא swipe
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  const dy = e.changedTouches[0].clientY - touchStartY;
+  if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
+    changeSlide(dx < 0 ? 1 : -1);
+  }
+}, { passive: true });
+
+// ════════════════════════════════════════
+//  RESIZE — invalidate Leaflet maps
+// ════════════════════════════════════════
+window.addEventListener('resize', () => {
+  Object.values(initializedMaps).forEach(m => m && m.invalidateSize && m.invalidateSize());
+});
 
 </script>
 </body>
